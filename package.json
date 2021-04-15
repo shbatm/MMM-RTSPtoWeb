@@ -1,0 +1,19 @@
+{
+  "name": "mmm-homeassistant-webrtc",
+  "version": "1.0.0",
+  "description": "",
+  "main": "MMM-HomeAssistant-WebRTC.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Anonym-tsk/MMM-HomeAssistant-WebRTC.git"
+  },
+  "author": "https://github.com/Anonym-tsk",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Anonym-tsk/MMM-HomeAssistant-WebRTC/issues"
+  },
+  "homepage": "https://github.com/Anonym-tsk/MMM-HomeAssistant-WebRTC#readme",
+  "dependencies": {
+    "node-fetch": "^2.6.1"
+  }
+}
