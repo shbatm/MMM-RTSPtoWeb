@@ -11,6 +11,7 @@ Depends on Home Assistant [WebRTC Camera](https://github.com/AlexxIT/WebRTC) com
 | host | hassio.local | Home Assistant host |
 | port | 8321 | Home Assistant port |
 | https | false | Use https for Home Assistant |
+| width | 50% | Max video width |
 | token | | Home Assistant API token |
 | url | | RTSP camera URL |
 

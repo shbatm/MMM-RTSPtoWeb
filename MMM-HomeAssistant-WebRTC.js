@@ -8,6 +8,7 @@ Module.register('MMM-HomeAssistant-WebRTC', {
         host: 'hassio.local',
         port: '8321',
         https: false,
+        width: '50%',
         token: '',
         url: '',
     },
@@ -30,6 +31,7 @@ Module.register('MMM-HomeAssistant-WebRTC', {
             this.video.controls = false;
             this.video.volume = 1;
             this.video.muted = true;
+            this.video.style.maxWidth = this.config.width;
             this.video.playsInline = true;
             this.video.srcObject = this.stream;
 
