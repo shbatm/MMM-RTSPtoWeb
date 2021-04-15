@@ -6,7 +6,7 @@ Module.register('MMM-HomeAssistant-WebRTC', {
 
     defaults: {
         host: 'hassio.local',
-        port: '8321',
+        port: '8123',
         https: false,
         width: '50%',
         token: '',
