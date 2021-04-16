@@ -29,6 +29,7 @@ module.exports = NodeHelper.create({
             })
             .catch((error) => {
                 console.error(this.name + ' ERROR:', error);
+                setTimeout(() => this.sendOffer(data), 3000);
             });
     },
 
