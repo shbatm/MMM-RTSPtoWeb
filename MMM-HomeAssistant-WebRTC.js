@@ -51,13 +51,13 @@ Module.register('MMM-HomeAssistant-WebRTC', {
         return error;
     },
 
-    sendOffer(sdp64) {
-        this.sendSocketNotification('OFFER', {config: this.config, sdp64});
+    sendOffer(sdp) {
+        this.sendSocketNotification('OFFER', {config: this.config, sdp});
     },
 
     socketNotificationReceived(notification, payload) {
         if (notification === 'ANSWER') {
-            this._start(payload.sdp64);
+            this._start(payload.sdp);
             this.updateDom();
         }
     },
@@ -127,11 +127,11 @@ Module.register('MMM-HomeAssistant-WebRTC', {
         return this.pc.setLocalDescription(offer);
     },
 
-    _start(sdp64) {
+    _start(sdp) {
         try {
             const remoteDesc = new RTCSessionDescription({
                 type: 'answer',
-                sdp: atob(sdp64)
+                sdp,
             });
             this.pc.setRemoteDescription(remoteDesc);
         } catch (e) {
@@ -141,6 +141,6 @@ Module.register('MMM-HomeAssistant-WebRTC', {
 
     async _connect() {
         this._stopConnectTimer();
-        this.sendOffer(btoa(this.pc.localDescription.sdp));
+        this.sendOffer(this.pc.localDescription.sdp);
     },
 });

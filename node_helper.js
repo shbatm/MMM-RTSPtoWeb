@@ -17,7 +17,7 @@ module.exports = NodeHelper.create({
 
         const params = new URLSearchParams();
         params.append('url', data.config.url);
-        params.append('sdp64', data.sdp64);
+        params.append('sdp', data.sdp);
 
         fetch(url, {method: 'POST', body: params, headers})
             .then((response) => {
