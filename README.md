@@ -1,22 +1,18 @@
-# MMM-HomeAssistant-WebRTC
+# MMM-RTSPtoWeb
 
-Module for viewing IP cameras RTSP stream in real time using WebRTC technology.
+MagicMirror2 Module for viewing IP cameras RTSP stream in real time using WebRTC technology.
 
-Depends on Home Assistant [WebRTC Camera](https://github.com/AlexxIT/WebRTC) component.
+Requires a [RTSPtoWeb](https://github.com/deepch/RTSPtoWeb) or [RTSPtoWebRTC](https://github.com/deepch/RTSPtoWebRTC) server running in the background. If you use Home Assistant, this can be the the RTSPtoWeb Add-On (e.g. http://homeassistant.local:8083).
 
 ### Configuration
 
 | Option | Default value | Description |
 | ------ | ------------- | ----------- |
-| host | hassio.local | Home Assistant host |
-| port | 8123 | Home Assistant port |
-| https | false | Use https for Home Assistant |
 | width | 50% | Max video width |
-| token | | Home Assistant API token |
-| url | | RTSP camera URL |
+| url | | [WebRTC stream URL](https://github.com/deepch/RTSPtoWeb/blob/master/docs/api.md#webrtc) from the RTSPtoWeb* server |
+
+To get the list of the streams available: `curl http://demo:demo@127.0.0.1:8083/streams`
 
 ---
 
-Enjoy my work? Help me out for a couple of :beers: or a :coffee:!
-
-[![coffee](https://www.buymeacoffee.com/assets/img/custom_images/black_img.png)](http://yasobe.ru/na/esphome)
+Based on the work done by [@Anonym-tsk](https://github.com/Anonym-tsk/) for [MMM-HomeAssistant-WebRTC](https://github.com/Anonym-tsk/MMM-HomeAssistant-WebRTC) and [@deepch](https://github.com/deepch) for the RTSPtoWeb(RTC servers.

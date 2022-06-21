@@ -1,4 +1,4 @@
-Module.register("MMM-HomeAssistant-WebRTC", {
+Module.register("MMM-RTSPtoWeb", {
     video: null,
     pc: null,
     stream: null,
@@ -8,9 +8,6 @@ Module.register("MMM-HomeAssistant-WebRTC", {
     suspendedForUserPresence: false,
 
     defaults: {
-        host: "hassio.local",
-        port: "8123",
-        https: false,
         width: "50%",
         token: "",
         url: "",
@@ -22,16 +19,14 @@ Module.register("MMM-HomeAssistant-WebRTC", {
 
     suspend: function () {
         if (this.stream) {
-            this.video.pause();
-            this.suspended = true;
+            this.stream.getTracks().forEach(track => track.stop());
         }
+        this.suspended = true;
     },
 
     resume: function () {
-        if (this.stream) {
-            this.video.play();
-            this.suspended = false;
-        }
+        this._init();
+        this.suspended = false;
     },
 
     getStyles: function () {
@@ -41,7 +36,7 @@ Module.register("MMM-HomeAssistant-WebRTC", {
     getDom: function () {
         if (this.stream) {
             this.video = document.createElement("video");
-            this.video.classList.add("haws-video");
+            this.video.classList.add("rtw-video");
             this.video.autoplay = true;
             this.video.controls = false;
             this.video.volume = 1;
@@ -60,8 +55,8 @@ Module.register("MMM-HomeAssistant-WebRTC", {
         }
 
         const error = document.createElement("div");
-        error.classList.add("haws-error", "small");
-        error.innerHTML = "No data from Home Assistant";
+        error.classList.add("rtw-error", "small");
+        error.innerHTML = "No data from RTSPtoWeb";
         return error;
     },
 
@@ -81,27 +76,18 @@ Module.register("MMM-HomeAssistant-WebRTC", {
         }
     },
 
-    sendOffer(sdp) {
-        this.sendSocketNotification("OFFER", { config: this.config, sdp });
-    },
-
     socketNotificationReceived: function (notification, payload) {
         if (notification === "ANSWER") {
-            this._start(payload.sdp);
-            this.updateDom();
+            console.log(payload);
+            try {
+                this.pc.setRemoteDescription(
+                new RTCSessionDescription({ type: 'answer', sdp: atob(payload) })
+                )
+            } catch (e) {
+                console.warn(e)
+            }
+            return;
         }
-    },
-
-    _startConnectTimer() {
-        clearTimeout(this.connectTimeout);
-        this.connectTimeout = setTimeout(() => {
-            this._connect();
-        }, 1000);
-    },
-
-    _stopConnectTimer() {
-        clearTimeout(this.connectTimeout);
-        this.connectTimeout = null;
     },
 
     async _init() {
@@ -112,18 +98,8 @@ Module.register("MMM-HomeAssistant-WebRTC", {
                     urls: ["stun:stun.l.google.com:19302"],
                 },
             ],
-            iceCandidatePoolSize: 20,
+            sdpSemantics: 'unified-plan'
         });
-
-        this.pc.onicecandidate = (e) => {
-            if (!this.connectTimeout) {
-                return;
-            }
-            this._startConnectTimer();
-            if (e.candidate === null) {
-                this._connect();
-            }
-        };
 
         this.pc.onconnectionstatechange = () => {
             if (this.pc.connectionState === "failed") {
@@ -150,29 +126,16 @@ Module.register("MMM-HomeAssistant-WebRTC", {
         };
         pingChannel.onclose = () => {
             clearInterval(intervalId);
+            this._init()
         };
 
         this.pc.addTransceiver("video", { direction: "recvonly" });
+        this.pc.onnegotiationneeded = async () => {
+            const offer = await this.pc.createOffer()
 
-        this._startConnectTimer();
-        const offer = await this.pc.createOffer({ offerToReceiveVideo: true });
-        return this.pc.setLocalDescription(offer);
-    },
+            await this.pc.setLocalDescription(offer)
 
-    _start(sdp) {
-        try {
-            const remoteDesc = new RTCSessionDescription({
-                type: "answer",
-                sdp,
-            });
-            this.pc.setRemoteDescription(remoteDesc);
-        } catch (e) {
-            console.warn(e);
-        }
-    },
-
-    async _connect() {
-        this._stopConnectTimer();
-        this.sendOffer(this.pc.localDescription.sdp);
+            this.sendSocketNotification("OFFER", { url: this.config.url, sdp: btoa(this.pc.localDescription.sdp) })
+          }
     },
 });

@@ -1,18 +1,18 @@
 {
-  "name": "mmm-homeassistant-webrtc",
+  "name": "mmm-rtsptoweb",
   "version": "1.0.0",
   "description": "",
-  "main": "MMM-HomeAssistant-WebRTC.js",
+  "main": "MMM-RTSPtoWeb.js",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Anonym-tsk/MMM-HomeAssistant-WebRTC.git"
+    "url": "git+https://github.com/shbatm/MMM-RTSPtoWeb.git"
   },
-  "author": "https://github.com/Anonym-tsk",
+  "author": "https://github.com/shbatm",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/Anonym-tsk/MMM-HomeAssistant-WebRTC/issues"
+    "url": "https://github.com/shbatm/MMM-RTSPtoWeb/issues"
   },
-  "homepage": "https://github.com/Anonym-tsk/MMM-HomeAssistant-WebRTC#readme",
+  "homepage": "https://github.com/shbatm/MMM-RTSPtoWeb#readme",
   "dependencies": {
     "node-fetch": "^2.6.1"
   }

@@ -1,0 +1,10 @@
+.MMM-RTSPtoWeb {
+  display: inline-block;
+}
+
+.region .rtw-video {
+  width: 100%;
+  display: block;
+}
+
+.rtw-error {}
