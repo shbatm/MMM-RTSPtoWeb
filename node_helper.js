@@ -13,7 +13,7 @@ module.exports = NodeHelper.create({
             body: new URLSearchParams({ data: payload.sdp })
           })
             .then(response => response.text())
-            .then(response_data => this.sendSocketNotification("ANSWER", response_data));
+            .then(response_data => this.sendSocketNotification(`ANSWER_${payload.identifier}`, response_data));
     },
 
     socketNotificationReceived: function(notification, payload) {

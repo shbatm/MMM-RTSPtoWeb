@@ -77,7 +77,7 @@ Module.register("MMM-RTSPtoWeb", {
     },
 
     socketNotificationReceived: function (notification, payload) {
-        if (notification === "ANSWER") {
+        if (notification === `ANSWER_${this.identifier}`) {
             console.log(payload);
             try {
                 this.pc.setRemoteDescription(
@@ -135,7 +135,7 @@ Module.register("MMM-RTSPtoWeb", {
 
             await this.pc.setLocalDescription(offer)
 
-            this.sendSocketNotification("OFFER", { url: this.config.url, sdp: btoa(this.pc.localDescription.sdp) })
+            this.sendSocketNotification("OFFER", { url: this.config.url, sdp: btoa(this.pc.localDescription.sdp), identifier: this.identifier })
           }
     },
 });
