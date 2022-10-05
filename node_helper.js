@@ -8,12 +8,16 @@ module.exports = NodeHelper.create({
     },
 
     sendOffer: function(payload) {
+        console.log(`Offer requested for ${payload.identifier}`);
         fetch(payload.url, {
             method: 'POST',
             body: new URLSearchParams({ data: payload.sdp })
           })
             .then(response => response.text())
-            .then(response_data => this.sendSocketNotification(`ANSWER_${payload.identifier}`, response_data));
+            .then(response_data => this.sendSocketNotification(`ANSWER_${payload.identifier}`, response_data))
+            .catch(error=>{
+                console.error(error);
+            });
     },
 
     socketNotificationReceived: function(notification, payload) {

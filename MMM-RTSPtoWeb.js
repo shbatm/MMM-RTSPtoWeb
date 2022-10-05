@@ -14,19 +14,31 @@ Module.register("MMM-RTSPtoWeb", {
     },
 
     start: function () {
-        this._init();
+        if (this.data.hiddenOnStartup) {
+            // Don't connect if module is going to be hidden
+            this.suspended = true;
+            return;
+        }
+        this.initializeRTCPeerConnection();
     },
 
     suspend: function () {
-        if (this.stream) {
-            this.stream.getTracks().forEach(track => track.stop());
-        }
         this.suspended = true;
+        if (this.stream) {
+            this.stream.getTracks().forEach(track => {
+                track.stop();
+            });
+            this.pc.close();
+            this.pc = null;
+            this.video.srcObject = null;
+            this.stream = null;
+        }
     },
 
     resume: function () {
-        this._init();
         this.suspended = false;
+        this.initializeRTCPeerConnection();
+        this.updateDom();
     },
 
     getStyles: function () {
@@ -51,12 +63,13 @@ Module.register("MMM-RTSPtoWeb", {
             };
             this.video.onstalled = recover;
             this.video.onerror = recover;
+
             return this.video;
         }
 
         const error = document.createElement("div");
         error.classList.add("rtw-error", "small");
-        error.innerHTML = "No data from RTSPtoWeb";
+        error.innerHTML = "No data from stream";
         return error;
     },
 
@@ -65,20 +78,22 @@ Module.register("MMM-RTSPtoWeb", {
         if (notification === "USER_PRESENCE") {
             if (payload) {
                 this.suspendedForUserPresence = false;
-                if (this.suspended && this.visible) {
+                if (this.suspended && !this.hidden) {
                     this.resume();
                 }
                 return;
             } else {
                 this.suspendedForUserPresence = true;
-                this.suspend();
+                if (!this.suspended) {
+                    this.suspend();
+                }
             }
         }
     },
 
     socketNotificationReceived: function (notification, payload) {
         if (notification === `ANSWER_${this.identifier}`) {
-            console.log(payload);
+            console.log(`${this.name} received answer for ${this.identifier}`);
             try {
                 this.pc.setRemoteDescription(
                 new RTCSessionDescription({ type: 'answer', sdp: atob(payload) })
@@ -90,7 +105,9 @@ Module.register("MMM-RTSPtoWeb", {
         }
     },
 
-    async _init() {
+    async initializeRTCPeerConnection() {
+        console.log(`${this.name} initializing connection for ${this.identifier}`);
+
         this.stream = new MediaStream();
         this.pc = new RTCPeerConnection({
             iceServers: [
@@ -103,9 +120,10 @@ Module.register("MMM-RTSPtoWeb", {
 
         this.pc.onconnectionstatechange = () => {
             if (this.pc.connectionState === "failed") {
+                console.log(`${this.name} connection in failed state, restarting`);
                 this.pc.close();
                 this.video.srcObject = null;
-                this._init();
+                this.initializeRTCPeerConnection();
             }
         };
 
@@ -126,14 +144,15 @@ Module.register("MMM-RTSPtoWeb", {
         };
         pingChannel.onclose = () => {
             clearInterval(intervalId);
-            this._init()
+            if (this.suspended) { return; }  // Closed due to module being hidden
+            console.log(`${this.name} ping channel closed; restarting...`);
+            this.initializeRTCPeerConnection();
         };
 
         this.pc.addTransceiver("video", { direction: "recvonly" });
         this.pc.onnegotiationneeded = async () => {
-            const offer = await this.pc.createOffer()
-
-            await this.pc.setLocalDescription(offer)
+            const offer = await this.pc.createOffer();
+            await this.pc.setLocalDescription(offer);
 
             this.sendSocketNotification("OFFER", { url: this.config.url, sdp: btoa(this.pc.localDescription.sdp), identifier: this.identifier })
           }
